@@ -10,15 +10,23 @@
       {{ $store.state.counter }}
     </button> -->
 
+    <div>
+      My name is <input v-model="name">
+    </div>
+
     <div class="weather">
       <h2>Дата</h2>
+
+      <!-- Список с погодой -->
       <div v-for="item in selected" :key="item">
+
+        <div class="item">
+          <p>{{item.dt_txt}}</p>
+        </div>
         <p>{{item}}</p>
       </div>
 
-      <h1>ДАТА</h1>
-      <div>{{date}}</div>
-
+      <!-- Пагинация -->
       <div class="pagination">
         <div @click="pagination(0)">Назад</div>
         <div @click="pagination(1)">Вперед</div>
@@ -42,7 +50,7 @@ export default {
     } catch (e) {
       console.log(e)
     }
-     console.log(response.data.list)
+    console.log(response.data.list)
     // console.log(response)
 
     let intermediateResult = Array(5).fill([])
@@ -61,7 +69,11 @@ export default {
   // DATA
   data() {
     return {
-      date: moment().format('YYYY-MM-DD')
+      date: moment().format('YYYY-MM-DD'),
+
+      moment: moment,
+
+      name:''
     }
   },
 
@@ -79,7 +91,6 @@ export default {
       // Вперед
       else {
         this.date = moment(this.date).add(1, 'days').format('YYYY-MM-DD')
-
       }
     }
   },
@@ -93,14 +104,24 @@ export default {
       let arr = []
 
       this.response.data.list .forEach(date => {
-        date.dt_txt = moment(date.dt_txt).format('YYYY-MM-DD')
 
-        if (date.dt_txt === this.date) {
+        const newData = moment(date.dt_txt).format('YYYY-MM-DD')
+
+        if (newData === this.date) {
           arr.push(date)
         }
       })
 
       return arr
+    }
+  },
+
+  mounted() {
+    if(localStorage.name) this.name = localStorage.name;
+  },
+  watch:{
+    name(newName) {
+      localStorage.name = newName;
     }
   }
 }
