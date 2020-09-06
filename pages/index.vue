@@ -6,8 +6,8 @@
 
       <!-- Пагинация -->
       <div class="pagination">
-        <div class="butt" @click="pagination(0)">Дата -</div>
-        <div class="butt" @click="pagination(1)">Дата +</div>
+        <div class="butt" @click="pagination(0)">Предыдущий день -</div>
+        <div class="butt" @click="pagination(1)">Следующий день +</div>
       </div>
     </div>
 
@@ -60,12 +60,14 @@ export default {
     // Получение токена с localStorage
     if(localStorage.token) token = localStorage.token
 
+    console.log(token)
+
     // Если токен отсутвует у пользователя
     if(token === 'null' || token === undefined) {
 
-      console.log('В первом')
-
-      localStorage.token = prompt("Введите ключь от openweathermap.org", "")
+      while(localStorage.token === undefined || localStorage.token === 'null') {
+        localStorage.token = prompt("Введите ключь от openweathermap.org", "")
+      }
     }
 
     let response
