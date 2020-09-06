@@ -23,7 +23,7 @@
         </div>
 
         <div class="all-time-weather">
-          <div v-for="item in selected" :key="item" class="time-weather">
+          <div v-for="item in selected" :key="item.dt_txt" class="time-weather">
 
             <div class="item">
               <p class="time">{{moment(item.dt_txt).format('HH:mm')}}</p>
@@ -60,8 +60,6 @@ export default {
     // Получение токена с localStorage
     if(localStorage.token) token = localStorage.token
 
-    console.log(token)
-
     // Если токен отсутвует у пользователя
     if(token === 'null' || token === undefined) {
 
@@ -76,7 +74,6 @@ export default {
     } catch (e) {
       alert('Что пошло не так...')
     }
-    console.log(response.data.list)
 
     let intermediateResult = Array(5).fill([])
 
@@ -201,7 +198,7 @@ export default {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
 
-        @media screen and (max-width: 1180px) {
+        @media screen and (max-width: 1260px) {
           grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
         }
 
