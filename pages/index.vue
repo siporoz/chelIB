@@ -1,30 +1,28 @@
 <template>
   <div class="container">
-    <!-- <div class="get-token">
-      <p>Введите токен с openweathermap.org</p>
-      <input type="text">
-      <button>go</button>
+
+    <div class="date-info">
+      <h2>Погода в Челябинске - {{moment(date).format('MM.DD')}}</h2>
+
+      <!-- Пагинация -->
+      <div class="pagination">
+        <div class="butt" @click="pagination(0)">Дата -</div>
+        <div class="butt" @click="pagination(1)">Дата +</div>
+      </div>
     </div>
-
-    <button @click="$store.commit('increment')">
-      {{ $store.state.counter }}
-    </button> -->
-
-    <!-- <div>
-      My name is <input v-model="name">
-    </div> -->
-
-    <h2>Погода в Челябинске - {{moment(date).format('MM.DD')}}</h2>
 
     <div class="weather">
       <h2>Погода в течение дня</h2>
+
+
+      <div>{{token}}</div>
 
       <!-- Список с погодой -->
       <div class="items">
         <div v-for="item in selected" :key="item" class="time-weather">
 
           <div class="item">
-            <p class="time">{{moment(item.dt_txt).format('h:mm')}}</p>
+            <p class="time">{{moment(item.dt_txt).format('HH:mm')}}</p>
             <div class="main-info">
               <img src="https://i.ibb.co/p3tQxRy/2020-09-06-00-54-41.png">
 
@@ -40,11 +38,6 @@
         </div>
       </div>
     </div>
-    <!-- Пагинация -->
-    <div class="pagination">
-      <div @click="pagination(0)">Назад</div>
-      <div @click="pagination(1)">Вперед</div>
-    </div>
   </div>
 </template>
 
@@ -57,24 +50,36 @@ export default {
   // ASYNC DATA
   async asyncData ({ params }) {
 
+    let token
+
+    // Получение токена с localStorage
+    if(localStorage.token) token = localStorage.token
+
+    // Если токен отсутвует у пользователя
+    if(token === null) {
+      const newToken = prompt("Введите ключь от openweathermap.org", "")
+
+      console.log(token)
+      token = newToken
+
+      if(token === "" || token === null) {
+        alert('Для работы необходим токен')
+        location.reload()
+      }
+    }
+
     let response
     try {
-      response = await axios.get('http://api.openweathermap.org/data/2.5/forecast?q=Chelyabinsk&appid=4fdc094b2420b4c0e98280405e847f8f')
+      response = await axios.get(`http://api.openweathermap.org/data/2.5/forecast?q=Chelyabinsk&appid=4fdc094b2420b4c0e98280405e847f8f`)
     } catch (e) {
-      console.log(e)
+      alert('Что пошло не так...')
     }
     console.log(response.data.list)
-    // console.log(response)
 
     let intermediateResult = Array(5).fill([])
 
-    // Разбивка по датам
-    response.data.list.forEach(data => {
-      // console.log(data.dt_txt)
-    })
-
     return {
-      response
+      response, token
     }
   },
 
@@ -86,7 +91,10 @@ export default {
 
       moment: moment,
 
-      name:''
+      // На удаление
+      name:'',
+
+      token: null
     }
   },
 
@@ -117,9 +125,7 @@ export default {
       let arr = []
 
       this.response.data.list .forEach(date => {
-
         const newData = moment(date.dt_txt).format('YYYY-MM-DD')
-
         if (newData === this.date) {
           arr.push(date)
         }
@@ -131,15 +137,14 @@ export default {
 
   // //////////
   // MOUNTED
-  mounted() {
-    if(localStorage.name) this.name = localStorage.name;
+  beforeCreate() {
   },
 
   // //////////
   // WATCH
   watch:{
-    name(newName) {
-      localStorage.name = newName;
+    token(newToken) {
+      localStorage.token = newToken
     }
   }
 }
@@ -152,9 +157,27 @@ export default {
   padding: 50px;
   color: #3c414b;
 
-  // Заголовок
-  h2 {
+  // Заголовок с датой
+  .date-info {
     margin-bottom: 30px;
+    display: flex;
+
+    // Пагинация
+    .pagination {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 10px;
+      align-items: center;
+      margin-left: 20px;
+
+      // Кнопки
+      .butt {
+        padding: 5px 10px;
+        background: #eee;
+        border-radius: 35px;
+        cursor: pointer;
+      }
+    }
   }
 
   // Блок с погодой
@@ -163,8 +186,11 @@ export default {
     border: 1px solid #d4d4d4;
     border-radius: 20px;
 
-    // Погода по часам
+    h2 {
+      margin-bottom: 20px;
+    }
 
+    // Погода по часам
     .items {
       display: flex;
 
@@ -216,11 +242,6 @@ export default {
     p {
       margin-bottom: 20px;
     }
-  }
-
-  .pagination {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
   }
 }
 </style>
