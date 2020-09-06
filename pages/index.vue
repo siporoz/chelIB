@@ -11,29 +11,34 @@
       </div>
     </div>
 
+    <!-- <div>{{token}}</div> -->
+
     <div class="weather">
       <h2>Погода в течение дня</h2>
 
-
-      <div>{{token}}</div>
-
       <!-- Список с погодой -->
       <div class="items">
-        <div v-for="item in selected" :key="item" class="time-weather">
+        <div v-if="selected.length === 0">
+          <h2>К сожалению данные отсутвуют :( </h2>
+        </div>
 
-          <div class="item">
-            <p class="time">{{moment(item.dt_txt).format('HH:mm')}}</p>
-            <div class="main-info">
-              <img src="https://i.ibb.co/p3tQxRy/2020-09-06-00-54-41.png">
+        <div class="all-time-weather">
+          <div v-for="item in selected" :key="item" class="time-weather">
 
-              <div class="format">
-                <p>{{Math.round(item.main.temp - 273.15)}}</p>
-                <p class="celsius">°C</p>
+            <div class="item">
+              <p class="time">{{moment(item.dt_txt).format('HH:mm')}}</p>
+              <div class="main-info">
+                <img src="https://i.ibb.co/p3tQxRy/2020-09-06-00-54-41.png">
+
+                <div class="format">
+                  <p>{{Math.round(item.main.temp - 273.15)}}</p>
+                  <p class="celsius">°C</p>
+                </div>
               </div>
+              <p>Ощущается как: {{Math.round(item.main.feels_like - 273.15)}}°C</p>
+              <p>Давление: {{item.main.pressure}}</p>
+              <p>{{item.weather.main}}</p>
             </div>
-            <p>Ощущается как: {{Math.round(item.main.feels_like - 273.15)}}°C</p>
-            <p>Давление: {{item.main.pressure}}</p>
-            <p>{{item.weather.main}}</p>
           </div>
         </div>
       </div>
@@ -56,21 +61,16 @@ export default {
     if(localStorage.token) token = localStorage.token
 
     // Если токен отсутвует у пользователя
-    if(token === null) {
-      const newToken = prompt("Введите ключь от openweathermap.org", "")
+    if(token === 'null' || token === undefined) {
 
-      console.log(token)
-      token = newToken
+      console.log('В первом')
 
-      if(token === "" || token === null) {
-        alert('Для работы необходим токен')
-        location.reload()
-      }
+      localStorage.token = prompt("Введите ключь от openweathermap.org", "")
     }
 
     let response
     try {
-      response = await axios.get(`http://api.openweathermap.org/data/2.5/forecast?q=Chelyabinsk&appid=4fdc094b2420b4c0e98280405e847f8f`)
+      response = await axios.get(`http://api.openweathermap.org/data/2.5/forecast?q=Chelyabinsk&appid=${localStorage.token}`)
     } catch (e) {
       alert('Что пошло не так...')
     }
@@ -101,6 +101,12 @@ export default {
   // //////////
   // METHODS
   methods: {
+
+    some() {
+      const some = prompt("Введите ключь от openweathermap.org", "")
+
+      return some
+    },
 
     // Метод пагинации
     pagination(direction) {
@@ -133,11 +139,6 @@ export default {
 
       return arr
     }
-  },
-
-  // //////////
-  // MOUNTED
-  beforeCreate() {
   },
 
   // //////////
@@ -187,46 +188,65 @@ export default {
     border-radius: 20px;
 
     h2 {
-      margin-bottom: 20px;
+      margin-bottom: 40px;
     }
 
     // Погода по часам
     .items {
       display: flex;
 
-      .time-weather {
-        width: 100%;
-        border-radius: 10px;
+      .all-time-weather {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
 
-        .item {
+        @media screen and (max-width: 1180px) {
+          grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+        }
 
-          // Время
-          .time {
-            font-size: 18px;
-            font-weight: 500;
-            margin-bottom: 10px;
-          }
+        @media screen and (max-width: 800px) {
+          grid-template-columns: 1fr 1fr 1fr 1fr;
+        }
 
-          .main-info {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            align-items: center;
+        @media screen and (max-width: 690px) {
+          grid-template-columns: 1fr 1fr;
+        }
 
-            img {
-              width: 58px;
+        .time-weather {
+          width: 100%;
+          border-radius: 10px;
+
+          .item {
+
+            margin-right: 40px;
+
+            // Время
+            .time {
+              font-size: 18px;
+              font-weight: 500;
+              margin-bottom: 10px;
             }
 
-            .format {
-              display: flex;
+            .main-info {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              align-items: center;
 
-              p {
-                font-size: 28px;
-                font-weight: 600;
+              img {
+                width: 58px;
               }
 
-              .celsius {
-                font-size: 14px;
-                font-weight: 400;
+              .format {
+                display: flex;
+
+                p {
+                  font-size: 28px;
+                  font-weight: 600;
+                }
+
+                .celsius {
+                  font-size: 14px;
+                  font-weight: 400;
+                }
               }
             }
           }
