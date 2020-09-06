@@ -10,27 +10,40 @@
       {{ $store.state.counter }}
     </button> -->
 
-    <div>
+    <!-- <div>
       My name is <input v-model="name">
-    </div>
+    </div> -->
+
+    <h2>Погода в Челябинске - {{moment(date).format('MM.DD')}}</h2>
 
     <div class="weather">
-      <h2>Дата</h2>
+      <h2>Погода в течение дня</h2>
 
       <!-- Список с погодой -->
-      <div v-for="item in selected" :key="item">
+      <div class="items">
+        <div v-for="item in selected" :key="item" class="time-weather">
 
-        <div class="item">
-          <p>{{item.dt_txt}}</p>
+          <div class="item">
+            <p class="time">{{moment(item.dt_txt).format('h:mm')}}</p>
+            <div class="main-info">
+              <img src="https://i.ibb.co/p3tQxRy/2020-09-06-00-54-41.png">
+
+              <div class="format">
+                <p>{{Math.round(item.main.temp - 273.15)}}</p>
+                <p class="celsius">°C</p>
+              </div>
+            </div>
+            <p>Ощущается как: {{Math.round(item.main.feels_like - 273.15)}}°C</p>
+            <p>Давление: {{item.main.pressure}}</p>
+            <p>{{item.weather.main}}</p>
+          </div>
         </div>
-        <p>{{item}}</p>
       </div>
-
-      <!-- Пагинация -->
-      <div class="pagination">
-        <div @click="pagination(0)">Назад</div>
-        <div @click="pagination(1)">Вперед</div>
-      </div>
+    </div>
+    <!-- Пагинация -->
+    <div class="pagination">
+      <div @click="pagination(0)">Назад</div>
+      <div @click="pagination(1)">Вперед</div>
     </div>
   </div>
 </template>
@@ -116,9 +129,14 @@ export default {
     }
   },
 
+  // //////////
+  // MOUNTED
   mounted() {
     if(localStorage.name) this.name = localStorage.name;
   },
+
+  // //////////
+  // WATCH
   watch:{
     name(newName) {
       localStorage.name = newName;
@@ -131,10 +149,65 @@ export default {
 .container {
   margin: 0 auto;
   min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
+  padding: 50px;
+  color: #3c414b;
+
+  // Заголовок
+  h2 {
+    margin-bottom: 30px;
+  }
+
+  // Блок с погодой
+  .weather {
+    padding: 30px;
+    border: 1px solid #d4d4d4;
+    border-radius: 20px;
+
+    // Погода по часам
+
+    .items {
+      display: flex;
+
+      .time-weather {
+        width: 100%;
+        border-radius: 10px;
+
+        .item {
+
+          // Время
+          .time {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 10px;
+          }
+
+          .main-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+
+            img {
+              width: 58px;
+            }
+
+            .format {
+              display: flex;
+
+              p {
+                font-size: 28px;
+                font-weight: 600;
+              }
+
+              .celsius {
+                font-size: 14px;
+                font-weight: 400;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 
   .get-token {
     padding: 30px;
